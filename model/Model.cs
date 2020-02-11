@@ -3,93 +3,81 @@ using System.Collections.Generic;
 
 namespace Agent
 {
-// public class Source
-// {
-//     public bool HKLM ;
-//     public bool HKU;
-//     public bool WMI;
-//     public Source()
-//     {
-//         HKLM = false;
-//         HKU = false;
-//         WMI = false;
-//     }
-// }
-
-public class Software
+public partial class Welcome
 {
-    public string name { get; set; }
-    public string publisher { get; set; }
-    public string version { get; set; }
-    public string installationDirectory { get; set; }
-    public string uninstallString { get; set; }
-    public string installed { get; set; }
-    // public Source source { get; set; }
+    public long Id { get; set; }
+    public long Timestamp { get; set; }
+    public List<Datum> Data { get; set; }
+}
+
+public partial class Datum
+{
+    public string Guid { get; set; }
+    public string IpAddress { get; set; }
+    public string OperationSystem { get; set; }
+    public string ComputerName { get; set; }
+    public string ActiveUser { get; set; }
+    public List<Software> Software { get; set; }
+    public Hardware Hardware { get; set; }
+    public string AgentLocation { get; set; }
+    public string AgentVersion { get; set; }
+}
+
+public partial class Hardware
+{
+    public List<string> Processor { get; set; }
+    public string Motherboard { get; set; }
+    public List<long> Ram { get; set; }
+    public List<Video> Video { get; set; }
+    public List<Storage> Storage { get; set; }
+    public List<string> Printers { get; set; }
+    public List<Network> Network { get; set; }
+}
+
+public partial class Network
+{
+    public string Name { get; set; }
+    public string Manufacturer { get; set; }
+    public string Mac { get; set; }
+    public string AdapterType { get; set; }
+    public string NetConnectionId { get; set; }
+    public string NetConnectionStatus { get; set; }
+    public List<string> IpAddress { get; set; }
+    public string IpSubnet { get; set; }
+    public string DefaultGateway { get; set; }
+    public List<string> Dns { get; set; }
+    public string Dhcp { get; set; }
+    public string DhcPserver { get; set; }
+    public string DnSdomain { get; set; }
+    public string DnShostName { get; set; }
+}
+
+public partial class Storage
+{
+    public string Model { get; set; }
+    public string Type { get; set; }
+    public string Interface { get; set; }
+    public string Serial { get; set; }
+}
+
+public partial class Video
+{
+    public string Type { get; set; }
+    public string Name { get; set; }
+}
+
+public partial class Software
+{
+    public string Name { get; set; }
+    public string Publisher { get; set; }
+    public string Version { get; set; }
+    public string InstallationDirectory { get; set; }
+    public string UninstallString { get; set; }
+    public string Installed { get; set; }
+    public Dictionary<string, bool> Source { get; set; }
     public bool src_HKU = false ;
     public bool src_HKLM = false ;
     public bool src_WMI = false ;
 }
 
-public class Video
-{
-    public string type { get; set; }
-    public string name { get; set; }
-}
-
-public class Storage
-{
-    public string model { get; set; }
-    public string type { get; set; }
-    public string @interface { get; set; }
-    public string serial { get; set; }
-}
-
-public class Network
-{
-    public string name { get; set; }
-    public string Manufacturer { get; set; }
-    public string MAC { get; set; }
-    public string adapter_type { get; set; }
-    public string netConnectionID { get; set; }
-    public string netConnectionStatus { get; set; }
-    public List<string> IP_address { get; set; }
-    public string IP_subnet { get; set; }
-    public string defaultGateway { get; set; }
-    public List<string> DNS { get; set; }
-    public string DHCP { get; set; }
-    public string DHCPserver { get; set; }
-    public string DNSdomain { get; set; }
-    public string DNShostName { get; set; }
-}
-
-public class Hardware
-{
-    public List<string> processor { get; set; }
-    public string motherboard { get; set; }
-    public List<string> ram { get; set; }
-    public List<Video> video { get; set; }
-    public List<Storage> storage { get; set; }
-    public List<string> printers { get; set; }
-    public List<Network> network { get; set; }
-}
-
-public class Datum
-{
-    public string GUID { get; set; }
-    public string ipAddress { get; set; }
-    public string operationSystem { get; set; }
-    public string computerName { get; set; }
-    public string activeUser { get; set; }
-    public List<Software> software { get; set; }
-    public Hardware hardware { get; set; }
-    public string agentLocation { get; set; }
-    public string agentVersion { get; set; }
-}
-
-public class RootObject
-{
-    public string id { get; set; }
-    public string timestamp { get; set; }
-    public List<Datum> data { get; set; }
-}
 }

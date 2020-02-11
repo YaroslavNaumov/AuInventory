@@ -13,9 +13,9 @@ namespace Agent
             ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
             foreach (ManagementObject mo in mos.Get())
             {
-                var obj = softwareList.FirstOrDefault(x => x.name == mo["Name"].ToString());
+                var obj = softwareList.FirstOrDefault(x => x.Name == mo["Name"].ToString());
                 if (obj == null) 
-                softwareList.Add(new Software() { name = mo["Name"].ToString(), src_WMI = true });
+                softwareList.Add(new Software() { Name = mo["Name"].ToString(), src_WMI = true });
                 else obj.src_WMI = true;
             }
             return softwareList;

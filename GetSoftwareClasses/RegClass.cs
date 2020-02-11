@@ -24,14 +24,11 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
-                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKU = true });
+                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { Name = displayName, src_HKU = true });
                     else obj.src_HKU = true;
                 }
-                // if (p_name.Equals(displayName, StringComparison.OrdinalIgnoreCase) == true)
-                // {
-                //     // return true;
-                // }
+
             }
 
             // search in: LocalMachine_32
@@ -43,8 +40,8 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
-                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKLM = true });
+                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { Name = displayName, src_HKLM = true });
                     else obj.src_HKLM = true;
                     // softwareList.Add(new Software() { name = displayName, src_HKLM = true });
                 }
@@ -59,8 +56,8 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
-                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKLM = true });
+                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { Name = displayName, src_HKLM = true });
                     else obj.src_HKLM = true;
                     // softwareList.Add(new Software() { name = displayName, src_HKLM = true });
                 }

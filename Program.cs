@@ -25,33 +25,11 @@ namespace Agent
             int i=1;
             foreach (Software aSoft in softwareList)
             {
-                Console.WriteLine(i+"#"+aSoft.name + "#"+ aSoft.src_HKU+"#"+ aSoft.src_HKLM+"#"+ aSoft.src_WMI);
+                Console.WriteLine(i+"#"+aSoft.Name + "#"+ aSoft.src_HKU+"#"+ aSoft.src_HKLM+"#"+ aSoft.src_WMI);
                 i++;
             }
             Console.WriteLine("########################");
             
-
-            // i=1;
-            // foreach (Software aSoft in softwareList)
-            // {
-            //     if(aSoft.src_HKLM && aSoft.src_WMI)
-            //     {
-            //     Console.WriteLine(i+" ------------------> "+aSoft.name + "   "+ aSoft.src_HKU+" "+ aSoft.src_HKLM+" "+ aSoft.src_WMI+" ");
-            //     i++;
-            //     }
-            // }
-            // Console.WriteLine("########################");
-
-            
-            // foreach (Software aSoft in allsoft2)
-            // {
-            //    Console.WriteLine(aSoft.Source+" | " + aSoft.Name + " - Active: " + aSoft.Active);
-            // }
-
-
-
-
-
 
             string url = "http://localhost:3000/posts";
 
