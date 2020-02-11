@@ -23,14 +23,7 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    // Console.WriteLine($"CurrentUser | {displayName}");
-                    foreach(Software software in softwareList){
-                        if(software.name == displayName)
-                        {
-                            software.src_HKU=true;
-                        }
-                        else softwareList.Add(new Software() { name = displayName, src_HKU=true});
-                    }
+                    softwareList.Add(new Software() { name = displayName, src_HKU=true});
                 }
                 // if (p_name.Equals(displayName, StringComparison.OrdinalIgnoreCase) == true)
                 // {
@@ -47,14 +40,7 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    // foreach(Software software in softwareList){
-                        if(softwareList.Exists(x => x.name == displayName))
-                        {
-                            // x.src_HKLM=true;
-                        }
-                        else softwareList.Add(new Software() { name = displayName, src_HKLM=true});
-                    // }
-                    // softwareList.Add(new Software() { name = displayName, src_HKLM=true});
+                    softwareList.Add(new Software() { name = displayName, src_HKLM=true});
                 }
             }
 
@@ -67,14 +53,7 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    foreach(Software software in softwareList){
-                        if(software.name == displayName)
-                        {
-                            software.src_HKLM=true;
-                        }
-                        else softwareList.Add(new Software() { name = displayName, src_HKLM=true});
-                    }
-                    // softwareList.Add(new Software() { name = displayName, src_HKLM=true});
+                    softwareList.Add(new Software() { name = displayName, src_HKLM=true});
                 }
 
             }
