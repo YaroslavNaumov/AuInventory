@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Win32;
 
 namespace Agent
@@ -23,7 +24,9 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    softwareList.Add(new Software() { name = displayName, src_HKU=true});
+                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKU = true });
+                    else obj.src_HKU = true;
                 }
                 // if (p_name.Equals(displayName, StringComparison.OrdinalIgnoreCase) == true)
                 // {
@@ -40,7 +43,10 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    softwareList.Add(new Software() { name = displayName, src_HKLM=true});
+                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKLM = true });
+                    else obj.src_HKLM = true;
+                    // softwareList.Add(new Software() { name = displayName, src_HKLM = true });
                 }
             }
 
@@ -53,7 +59,10 @@ namespace Agent
 
                 if (displayName != null && displayName != "")
                 {
-                    softwareList.Add(new Software() { name = displayName, src_HKLM=true});
+                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
+                    if (obj == null) softwareList.Add(new Software() { name = displayName, src_HKLM = true });
+                    else obj.src_HKLM = true;
+                    // softwareList.Add(new Software() { name = displayName, src_HKLM = true });
                 }
 
             }

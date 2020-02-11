@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management;
 
 namespace Agent
@@ -9,21 +10,13 @@ namespace Agent
         public List<Software> getSoftwareList(List<Software> softwareList)
         {
             // List<Software> softwareList = new List<Software>();
-
             ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
             foreach (ManagementObject mo in mos.Get())
             {
-                // Console.WriteLine("WMI | "+mo["Name"]);
-                    // foreach(Software software in softwareList){
-                    //     if(software.name == mo["Name"].ToString())
-                    //     {
-                    //         software.src_HKLM=true;
-                    //     }
-                    //     else 
-                    //     softwareList.Add(new Software() { name = mo["Name"].ToString(), src_WMI=true});
-                    // }
-
-            softwareList.Add(new Software() { name = mo["Name"].ToString(), src_WMI=true});
+                var obj = softwareList.FirstOrDefault(x => x.name == mo["Name"].ToString());
+                if (obj == null) 
+                softwareList.Add(new Software() { name = mo["Name"].ToString(), src_WMI = true });
+                else obj.src_WMI = true;
             }
             return softwareList;
 
