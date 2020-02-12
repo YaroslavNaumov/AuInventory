@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Management;
 using System.Net;
+using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Unicode;
+using System.Collections.Generic;
+using System.Reflection.PortableExecutable;
 
 namespace Agent
 {
@@ -23,23 +29,26 @@ namespace Agent
             Datum data =new Datum();
             data.Software=softwareList;
 
-            // Console.WriteLine("########################");
-            // // foreach (Software aSoft in allsoft)
-            // int i = 1;
-            // foreach (Software aSoft in softwareList)
-            // {
-            //     Console.WriteLine(i + "#" + aSoft.Name + "#" + aSoft.src_HKU + "#" + aSoft.src_HKLM + "#" + aSoft.src_WMI);
-            //     i++;
-            // }
-            // Console.WriteLine("########################");
+            Console.WriteLine("########################");
+            // foreach (Software aSoft in allsoft)
+            int i = 1;
+            foreach (Software aSoft in softwareList)
+            {
+                Console.WriteLine(i + "#" + aSoft.Name);
+                i++;
+            }
+            Console.WriteLine("########################");
 
 
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
+                IgnoreNullValues =true, //	Возвращает или задает значение, определяющее, пропускаются ли значения null во время сериализации и десериализации. Значение по умолчанию — false.
+                // Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             };
             string jsonString = JsonSerializer.Serialize(data, options);
-            Console.WriteLine(jsonString);
+           // Console.WriteLine(jsonString);
 
             //получение ключа продукта windows
             string Text = KeyDecoder.GetWindowsProductKeyFromRegistry();
@@ -57,8 +66,8 @@ namespace Agent
 
                 try
                 {
-                    // var response = webClient.UploadValues(url, pars);
-                    // Console.WriteLine(Encoding.ASCII.GetString(response));
+                    var response = webClient.UploadValues(url, pars);
+                    Console.WriteLine(Encoding.ASCII.GetString(response));
                 }
                 catch (WebException e)
                 {
@@ -66,6 +75,7 @@ namespace Agent
                     Console.WriteLine(e.GetType().Name);
                 }
             }
+            Console.ReadLine();
 
         }
     }
