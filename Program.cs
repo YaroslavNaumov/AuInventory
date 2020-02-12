@@ -12,25 +12,30 @@ namespace Agent
 
             List<Software> softwareList = new List<Software>();
 
-            var reg = new RegClass();
-            // List<Software> allsoft = reg.getSoftwareList();
+            var reg = new FromRegistry();
             softwareList = reg.getSoftwareList(softwareList);
-            var wmi = new WmiClass();
-            // List<Software> allsoft2 = wmi.getSoftwareList();
+            var wmi = new FromWMI();
             softwareList = wmi.getSoftwareList(softwareList);
 
 
             Console.WriteLine("########################");
             // foreach (Software aSoft in allsoft)
-            int i=1;
+            int i = 1;
             foreach (Software aSoft in softwareList)
             {
-                Console.WriteLine(i+"#"+aSoft.Name + "#"+ aSoft.src_HKU+"#"+ aSoft.src_HKLM+"#"+ aSoft.src_WMI);
+                Console.WriteLine(i + "#" + aSoft.Name + "#" + aSoft.src_HKU + "#" + aSoft.src_HKLM + "#" + aSoft.src_WMI);
                 i++;
             }
             Console.WriteLine("########################");
-            
 
+
+
+
+            //получение ключа продукта windows
+            string Text = KeyDecoder.GetWindowsProductKeyFromRegistry();
+            Console.WriteLine(Text);
+
+            //// web client
             string url = "http://localhost:3000/posts";
 
             using (var webClient = new WebClient())

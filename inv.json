@@ -1,0 +1,84 @@
+{
+    "id": "1",
+    "timestamp": "1581402162",
+    "guid":"guid",
+    "data": [
+        {
+            "GUID_PC": "GUID",
+            "ipAddress": "127.0.0.1",
+            "operationSystem": "Windows 7 pro",
+            "computerName": "office.auriga.msk\\WIN-K1OHRJN1U45",
+            "activeUser": "OFFICE\\yaroslav.naumov",
+            "software": [
+                {
+                    "name": "Foxit Reader",
+                    "publisher": "Foxit Software Inc. ",
+                    "version": "9.6.0.25114",
+                    "installationDirectory": "C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\",
+                    "uninstallString": "C:\\Program Files (x86)\\Foxit Software\\Foxit Reader\\unins000.exe",
+                    "installed": "06.02.2020",
+                    "source": {
+                        "HKLM": true,
+                        "HKU": false,
+                        "WMI": true
+                    }
+                }
+            ],
+            "hardware": {
+                "processor": [
+                    "Intel Core i5-3330 CPU @ 3.00GHz (3000 МГц)"
+                ],
+                "motherboard": "Gigabyte Technology Co., Ltd. To be filled by O.E.M.",
+                "ram": [
+                    "8192"
+                ],
+                "video": [
+                    {
+                        "type": "monitor",
+                        "name": "DELL S2419H(HDMI1)"
+                    },
+                    {
+                        "type": "controller",
+                        "name": "Intel(R) HD Graphics"
+                    }
+                ],
+                "storage": [
+                    {
+                        "model": "Hitachi HDS721050CLA360 ATA Device",
+                        "type": "HDD",
+                        "interface": "IDE",
+                        "serial": "202020202020504a3531323352465a3241534b55"
+                    }
+                ],
+                "printers": [
+                    ""
+                ],
+                "network": [
+                    {
+                        "name": "Realtek PCIe GBE Family Controller #2",
+                        "Manufacturer": "Realtek",
+                        "MAC": "90:2B:34:9C:B1:46",
+                        "adapter_type": "Ethernet 802.3 ",
+                        "netConnectionID": "Подключение по локальной сети 2",
+                        "netConnectionStatus": "Connected",
+                        "IP_address": [
+                            "172.27.10.22",
+                            "fe80::c843:ff4d:fad2:a9f1"
+                        ],
+                        "IP_subnet": "255.255.255.0",
+                        "defaultGateway": "172.27.10.1",
+                        "DNS": [
+                            "95.79.120.5"
+                        ],
+                        "DHCP": "TRUE",
+                        "DHCPserver": "95.79.120.8",
+                        "DNSdomain": "auriga.ru nn.auriga.ru tst office.auriga.msk",
+                        "DNShostName": "WIN-K1OHRJN1U45"
+                    }
+                ]
+            },
+            "agentLocation": "C:\\Windows\\agent.exe",
+            "agentVersion": "0.0.1b"
+        }
+    ]
+}

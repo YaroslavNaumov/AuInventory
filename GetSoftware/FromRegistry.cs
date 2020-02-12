@@ -5,7 +5,7 @@ using Microsoft.Win32;
 
 namespace Agent
 {
-    public class RegClass
+    public class FromRegistry
     {
         public List<Software> getSoftwareList(List<Software> softwareList)
         {

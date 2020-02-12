@@ -5,7 +5,7 @@ using System.Management;
 
 namespace Agent
 {
-    public class WmiClass
+    public class FromWMI
     {
         public List<Software> getSoftwareList(List<Software> softwareList)
         {
