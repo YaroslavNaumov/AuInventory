@@ -3,16 +3,17 @@ using System.Collections.Generic;
 
 namespace Agent
 {
-public partial class Welcome
+public partial class Agent
 {
     public long Id { get; set; }
     public long Timestamp { get; set; }
+    public string Guid { get; set; }
     public List<Datum> Data { get; set; }
 }
 
 public partial class Datum
 {
-    public string Guid { get; set; }
+    public string GuidPc { get; set; }
     public string IpAddress { get; set; }
     public string OperationSystem { get; set; }
     public string ComputerName { get; set; }
@@ -75,9 +76,8 @@ public partial class Software
     public string UninstallString { get; set; }
     public string Installed { get; set; }
     public Dictionary<string, bool> Source { get; set; }
-    public bool src_HKU = false ;
-    public bool src_HKLM = false ;
-    public bool src_WMI = false ;
+    public bool SrcHku { get; set; }
+    public bool SrcHklm { get; set; }
+    public bool SrcWmi { get; set; }
 }
-
 }

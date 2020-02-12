@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Agent
 {
@@ -18,18 +20,26 @@ namespace Agent
             softwareList = wmi.getSoftwareList(softwareList);
 
 
-            Console.WriteLine("########################");
-            // foreach (Software aSoft in allsoft)
-            int i = 1;
-            foreach (Software aSoft in softwareList)
+            Datum data =new Datum();
+            data.Software=softwareList;
+
+            // Console.WriteLine("########################");
+            // // foreach (Software aSoft in allsoft)
+            // int i = 1;
+            // foreach (Software aSoft in softwareList)
+            // {
+            //     Console.WriteLine(i + "#" + aSoft.Name + "#" + aSoft.src_HKU + "#" + aSoft.src_HKLM + "#" + aSoft.src_WMI);
+            //     i++;
+            // }
+            // Console.WriteLine("########################");
+
+
+            var options = new JsonSerializerOptions
             {
-                Console.WriteLine(i + "#" + aSoft.Name + "#" + aSoft.src_HKU + "#" + aSoft.src_HKLM + "#" + aSoft.src_WMI);
-                i++;
-            }
-            Console.WriteLine("########################");
-
-
-
+                WriteIndented = true,
+            };
+            string jsonString = JsonSerializer.Serialize(data, options);
+            Console.WriteLine(jsonString);
 
             //получение ключа продукта windows
             string Text = KeyDecoder.GetWindowsProductKeyFromRegistry();
@@ -47,7 +57,7 @@ namespace Agent
 
                 try
                 {
-                    var response = webClient.UploadValues(url, pars);
+                    // var response = webClient.UploadValues(url, pars);
                     // Console.WriteLine(Encoding.ASCII.GetString(response));
                 }
                 catch (WebException e)

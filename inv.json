@@ -21,7 +21,10 @@
                         "HKLM": true,
                         "HKU": false,
                         "WMI": true
-                    }
+                    },
+                    "src_HKU": false,
+                    "src_HKLM": false,
+                    "src_WMI": false
                 }
             ],
             "hardware": {

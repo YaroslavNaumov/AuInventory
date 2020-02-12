@@ -15,8 +15,8 @@ namespace Agent
             {
                 var obj = softwareList.FirstOrDefault(x => x.Name == mo["Name"].ToString());
                 if (obj == null) 
-                softwareList.Add(new Software() { Name = mo["Name"].ToString(), src_WMI = true });
-                else obj.src_WMI = true;
+                softwareList.Add(new Software() { Name = mo["Name"].ToString(), SrcWmi = true });
+                else obj.SrcWmi = true;
             }
             return softwareList;
 
