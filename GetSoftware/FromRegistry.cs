@@ -9,121 +9,150 @@ namespace Agent
 {
     public class User
     {
+        public string UserName { get; set; }
+        public string Domain { get; set; }
         public string LocalPath { get; set; }
         public string Sid { get; set; }
         public string LastUseTime { get; set; }
     }
 
-    public class User2
-    {
-
-    }
     public class FromRegistry
     {
+
         public List<Software> getSoftwareList(List<Software> softwareList)
         {
-
+            RegistryKey rk;
             List<User> users = new List<User>();
+            // search in: Users
             ManagementObjectSearcher user = new ManagementObjectSearcher("SELECT * FROM Win32_UserProfile");
+
+            // ManagementObject o = new ManagementObject("Win32_SID.SID='S-1-5-21-3338502417-1842584666-2817140955-41203'");
+
+            // S-1-5-21-3338502417-1842584666-2817140955-41203
             foreach (ManagementObject u in user.Get())
             {
                 if (u["sid"].ToString().Length > 8)
                 {
+                    string sid = u["sid"].ToString();
+                    Boolean mount = false;
+                    ManagementObject usr = new ManagementObject($"Win32_SID.SID='{sid}'");
+                    string n = usr["AccountName"].ToString();
+                    string d = usr["ReferencedDomainName"].ToString();
+
                     users.Add(new User()
                     {
                         LocalPath = u["localpath"].ToString(),
-                        Sid = u["sid"].ToString(),
+                        Sid = sid,
                         LastUseTime = u["lastusetime"].ToString(),
                     });
-                }
+                    // Console.WriteLine(User);
 
-            }
-
-
-            // string path = "C:\\Users\\sergey.nikitin\\NTUSER.DAT";
-            // string SID = "S-1-5-21-3338502417-1842584666-2817140955-35579";
-            // int interror = RegLoadKey((uint)HKEY.USERS, SID, path);
-            string v = NtUserDat.RegistryInterop.Load("C:\\Users\\sergey.nikitin\\NTUSER.DAT");
-            NtUserDat.RegistryInterop.Unload();
-
-
-
-
-            //
-
-
-            string displayName = "";
-            RegistryKey key;
-
-
-            // search in: CurrentUser
-            try
-            {
-                key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-                foreach (String keyName in key.GetSubKeyNames())
-                {
-                    RegistryKey subkey = key.OpenSubKey(keyName);
-                    displayName = subkey.GetValue("DisplayName") as string;
-
-                    if (displayName != null && displayName != "")
+                    rk = Registry.Users.OpenSubKey(sid + @"\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+                    if (rk == null)
                     {
-                        var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-                        if (obj == null)
+                        string loadpath = u["localpath"].ToString() + "\\NTUSER.DAT";
+                        NtUserDat.RegistryInterop.Load(loadpath, sid);
+                        mount = true;
+                        rk = Registry.Users.OpenSubKey(sid + @"\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+                    }
+
+                    if (rk != null)
+                    {
+                        foreach (String keyName in rk.GetSubKeyNames())
                         {
-                            softwareList.Add(new Software() { Name = displayName, SrcHku = true });
+                            RegistryKey rkSubkey = rk.OpenSubKey(keyName);
+                            string displayName = rkSubkey.GetValue("DisplayName") as string;
 
+                            if (displayName != null && displayName != "")
+                            {
+                                var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                                if (obj == null)
+                                {
+                                    softwareList.Add(new Software() { Name = displayName+$" ({d}\\{n})", SrcHku = true });
+
+                                }
+                                else obj.SrcHku = true;
+                            }
+                            rkSubkey.Close();
                         }
-                        else obj.SrcHku = true;
-                    }
-
-                }
-            }
-            catch
-            {
-
-            }
-
-            // search in: LocalMachine_32
-            key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            foreach (String keyName in key.GetSubKeyNames())
-            {
-                RegistryKey subkey = key.OpenSubKey(keyName);
-                displayName = subkey.GetValue("DisplayName") as string;
-
-                if (displayName != null && displayName != "")
-                {
-                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-                    if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
-                    else obj.SrcHklm = true;
-                    // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
-                }
-            }
-
-            // search in: LocalMachine_64
-            try
-            {
-                key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall");
-                foreach (String keyName in key.GetSubKeyNames())
-                {
-                    RegistryKey subkey = key.OpenSubKey(keyName);
-                    displayName = subkey.GetValue("DisplayName") as string;
-
-                    if (displayName != null && displayName != "")
+                        rk.Close();
+                    } //else Console.WriteLine("Registry key is null");
+                    if (mount)
                     {
-                        var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-                        if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
-                        else obj.SrcHklm = true;
-                        // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
+                        NtUserDat.RegistryInterop.Unload(sid);
                     }
+                    // displayName = "";
+                    // Console.WriteLine("break");
 
                 }
-            }
-            catch
-            {
 
             }
+
+            // // search in: CurrentUser
+
+            //     rk = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+            //     foreach (String keyName in rk.GetSubKeyNames())
+            //     {
+            //         RegistryKey subkey = rk.OpenSubKey(keyName);
+            //         string displayName = subkey.GetValue("DisplayName") as string;
+
+            //         if (displayName != null && displayName != "")
+            //         {
+            //             var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+            //             if (obj == null)
+            //             {
+            //                 softwareList.Add(new Software() { Name = displayName, SrcHku = true });
+
+            //             }
+            //             else obj.SrcHku = true;
+            //         }
+
+            //     }
+
+
+            // // search in: LocalMachine_32
+            // rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+            // foreach (String keyName in rk.GetSubKeyNames())
+            // {
+            //     RegistryKey rkSubkey = rk.OpenSubKey(keyName);
+            //     string displayName = rkSubkey.GetValue("DisplayName") as string;
+
+            //     if (displayName != null && displayName != "")
+            //     {
+            //         var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+            //         if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
+            //         else obj.SrcHklm = true;
+            //         // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
+            //     }
+            //     rkSubkey.Close();
+            // }
+            // rk.Close();
+
+            // // search in: LocalMachine_64
+            // try
+            // {
+            //     rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall");
+            //     foreach (String keyName in rk.GetSubKeyNames())
+            //     {
+            //         RegistryKey rkSubkey = rk.OpenSubKey(keyName);
+            //         string displayName = rkSubkey.GetValue("DisplayName") as string;
+
+            //         if (displayName != null && displayName != "")
+            //         {
+            //             var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+            //             if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
+            //             else obj.SrcHklm = true;
+            //             // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
+            //         }
+            //         rkSubkey.Close();
+            //     }
+            //     rk.Close();
+            // }
+            // catch
+            // {
+
+            // }
             return softwareList;
-
         }
     }
 }

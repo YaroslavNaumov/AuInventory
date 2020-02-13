@@ -51,7 +51,7 @@ namespace Agent
             public const uint HKEY_USERS = 0x80000003;
 
             //temporary hive key
-            public const string HIVE_SUBKEY = "Test";
+            // public const string HIVE_SUBKEY = "SWControl";
 
 
             static private Boolean gotPrivileges = false;
@@ -82,7 +82,7 @@ namespace Agent
                 gotPrivileges = true;
             }
 
-            static public string Load(string file)
+            static public string Load(string file, string HIVE_SUBKEY)
             {
                 if (!gotPrivileges)
                     GetPrivileges();
@@ -90,11 +90,12 @@ namespace Agent
                 return HIVE_SUBKEY;
             }
 
-            static public void Unload()
+            static public void Unload(string HIVE_SUBKEY)
             {
                 if (!gotPrivileges)
                     GetPrivileges();
                 int output = RegUnLoadKey(HKEY_USERS, HIVE_SUBKEY);
+                // Console.WriteLine(output);
             }
         }
     }

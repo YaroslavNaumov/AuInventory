@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Management;
 using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
-using System.Collections.Generic;
-using System.Reflection.PortableExecutable;
 
 namespace Agent
 {
@@ -23,7 +18,7 @@ namespace Agent
             var reg = new FromRegistry();
             softwareList = reg.getSoftwareList(softwareList);
             var wmi = new FromWMI();
-            softwareList = wmi.getSoftwareList(softwareList);
+          //  softwareList = wmi.getSoftwareList(softwareList);
 
 
             Datum data =new Datum();
