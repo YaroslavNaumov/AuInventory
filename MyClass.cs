@@ -1,5 +1,3 @@
-using System;
-
 namespace Agent
 {
     public class MyClass
