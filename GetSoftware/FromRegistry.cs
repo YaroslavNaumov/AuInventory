@@ -61,13 +61,25 @@ namespace Agent
                         {
                             RegistryKey rkSubkey = rk.OpenSubKey(keyName);
                             string displayName = rkSubkey.GetValue("DisplayName") as string;
+                            string displayVersion = rkSubkey.GetValue("displayVersion") as string;
+                            string publisher = rkSubkey.GetValue("Publisher") as string;
+                            string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                            string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
                             if (displayName != null && displayName != "")
                             {
                                 var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
                                 if (obj == null)
                                 {
-                                    softwareList.Add(new Software() { Name = displayName+$" ({d}\\{n})", SrcHku = true });
+                                    softwareList.Add(new Software()
+                                    {
+                                        Name = displayName + $" ({d}\\{n})",
+                                        SrcHku = true,
+                                        Version = displayVersion,
+                                        Publisher = publisher,
+                                        InstallationDirectory = installLocation,
+                                        UninstallString = uninstallString,
+                                    });
 
                                 }
                                 else obj.SrcHku = true;
@@ -109,48 +121,80 @@ namespace Agent
             //     }
 
 
-            // // search in: LocalMachine_32
-            // rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            // foreach (String keyName in rk.GetSubKeyNames())
-            // {
-            //     RegistryKey rkSubkey = rk.OpenSubKey(keyName);
-            //     string displayName = rkSubkey.GetValue("DisplayName") as string;
+            // search in: LocalMachine_32
+            rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
+            foreach (String keyName in rk.GetSubKeyNames())
+            {
+                RegistryKey rkSubkey = rk.OpenSubKey(keyName);
+                string displayName = rkSubkey.GetValue("DisplayName") as string;
+                string displayVersion = rkSubkey.GetValue("displayVersion") as string;
+                string publisher = rkSubkey.GetValue("Publisher") as string;
+                string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
-            //     if (displayName != null && displayName != "")
-            //     {
-            //         var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-            //         if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
-            //         else obj.SrcHklm = true;
-            //         // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
-            //     }
-            //     rkSubkey.Close();
-            // }
-            // rk.Close();
+                if (displayName != null && displayName != "")
+                {
+                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                    if (obj == null)
+                    {
+                        softwareList.Add(new Software()
+                        {
+                            Name = displayName,
+                            SrcHku = true,
+                            Version = displayVersion,
+                            Publisher = publisher,
+                            InstallationDirectory = installLocation,
+                            UninstallString = uninstallString,
+                        });
 
-            // // search in: LocalMachine_64
-            // try
-            // {
-            //     rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall");
-            //     foreach (String keyName in rk.GetSubKeyNames())
-            //     {
-            //         RegistryKey rkSubkey = rk.OpenSubKey(keyName);
-            //         string displayName = rkSubkey.GetValue("DisplayName") as string;
+                    }
+                    else obj.SrcHklm = true;
+                    // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
+                }
+                rkSubkey.Close();
+            }
+            rk.Close();
 
-            //         if (displayName != null && displayName != "")
-            //         {
-            //             var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-            //             if (obj == null) softwareList.Add(new Software() { Name = displayName, SrcHklm = true });
-            //             else obj.SrcHklm = true;
-            //             // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
-            //         }
-            //         rkSubkey.Close();
-            //     }
-            //     rk.Close();
-            // }
-            // catch
-            // {
+            // search in: LocalMachine_64
+            try
+            {
+                rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall");
+                foreach (String keyName in rk.GetSubKeyNames())
+                {
+                    RegistryKey rkSubkey = rk.OpenSubKey(keyName);
+                    string displayName = rkSubkey.GetValue("DisplayName") as string;
+                    string displayVersion = rkSubkey.GetValue("displayVersion") as string;
+                    string publisher = rkSubkey.GetValue("Publisher") as string;
+                    string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                    string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
-            // }
+                    if (displayName != null && displayName != "")
+                    {
+                        var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                        if (obj == null)
+                        {
+                            softwareList.Add(new Software()
+                            {
+                                Name = displayName,
+                                SrcHku = true,
+                                Version = displayVersion,
+                                Publisher = publisher,
+                                InstallationDirectory = installLocation,
+                                UninstallString = uninstallString,
+                            });
+
+                        }
+                        else obj.SrcHklm = true;
+                        // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
+                    }
+                    rkSubkey.Close();
+                }
+                rk.Close();
+            }
+            catch
+            {
+
+            }
             return softwareList;
         }
     }
