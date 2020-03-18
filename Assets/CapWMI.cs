@@ -4,7 +4,7 @@ using System.Management;
 
 namespace Agent
 {
-    public class FromWMI
+    public class CapWMI
     {
         public List<Software> getSoftwareList(List<Software> softwareList)
         {
@@ -12,7 +12,7 @@ namespace Agent
             ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
             foreach (ManagementObject mo in mos.Get())
             {
-                var obj = softwareList.FirstOrDefault(x => x.Name == mo["Name"].ToString());
+                var obj = softwareList.FirstOrDefault(x => x.name == mo["Name"].ToString());
                 if (obj == null)
                 {
                     // softwareList.Add(new Software() { Name = mo["Name"].ToString(),  = true });
@@ -26,21 +26,21 @@ namespace Agent
                     //     Installed = mo["InstallDate"].ToString(),
                     //     SrcWmi = true,
                     // });
-                    obj.Name = mo["Name"].ToString();
-                    obj.Version = mo["Version"].ToString();
-                    obj.Publisher = mo["Vendor"].ToString();
-                    if(mo["InstallLocation"]!=null) obj.InstallationDirectory = mo["InstallLocation"].ToString();
+                    obj.name = mo["Name"].ToString();
+                    obj.version = mo["Version"].ToString();
+                    obj.publisher = mo["Vendor"].ToString();
+                    if(mo["InstallLocation"]!=null) obj.installationDirectory = mo["InstallLocation"].ToString();
                     // UninstallString = mo["Name"].ToString(),
-                    obj.Installed = mo["InstallDate"].ToString();
-                    obj.SrcWmi = true;
+                    obj.installed = mo["InstallDate"].ToString();
+                    // obj.SrcWmi = true;
 
                 }
                 else
                 {
-                    obj.Installed = mo["InstallDate"].ToString();
-                    if (obj.InstallationDirectory == "" && mo["InstallLocation"] != null)
-                        obj.InstallationDirectory = mo["InstallLocation"].ToString();
-                    obj.SrcWmi = true;
+                    obj.installed = mo["InstallDate"].ToString();
+                    if (obj.installationDirectory == "" && mo["InstallLocation"] != null)
+                        obj.installationDirectory = mo["InstallLocation"].ToString();
+                    // obj.SrcWmi = true;
                 }
             }
             return softwareList;

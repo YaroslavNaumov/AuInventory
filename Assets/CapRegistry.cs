@@ -15,10 +15,10 @@ namespace Agent
         public string LastUseTime { get; set; }
     }
 
-    public class FromRegistry
+    public class CapRegistry
     {
 
-        public List<Software> getSoftwareList(List<Software> softwareList)
+        public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
         {
             RegistryKey rk;
             List<User> users = new List<User>();
@@ -64,25 +64,28 @@ namespace Agent
                             string displayVersion = rkSubkey.GetValue("displayVersion") as string;
                             string publisher = rkSubkey.GetValue("Publisher") as string;
                             string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                            string InstallDate = rkSubkey.GetValue("InstallDate") as string;
                             string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
                             if (displayName != null && displayName != "")
                             {
-                                var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                                var obj = softwareList.FirstOrDefault(x => x.name == displayName);
                                 if (obj == null)
                                 {
                                     softwareList.Add(new Software()
                                     {
-                                        Name = displayName + $" ({d}\\{n})",
-                                        SrcHku = true,
-                                        Version = displayVersion,
-                                        Publisher = publisher,
-                                        InstallationDirectory = installLocation,
-                                        UninstallString = uninstallString,
+                                        name = displayName + $" ({d}\\{n})",
+                                        // SrcHku = true,
+                                        version = displayVersion,
+                                        publisher = publisher,
+                                        installationDirectory = installLocation,
+                                        installed = InstallDate,
+                                        comment = "HKU"
+                                        // UninstallString = uninstallString,
                                     });
 
                                 }
-                                else obj.SrcHku = true;
+                                // else obj.SrcHku = true;
                             }
                             rkSubkey.Close();
                         }
@@ -92,34 +95,16 @@ namespace Agent
                     {
                         NtUserDat.RegistryInterop.Unload(sid);
                     }
-                    // displayName = "";
-                    // Console.WriteLine("break");
+
 
                 }
 
             }
 
-            // // search in: CurrentUser
 
-            //     rk = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
-            //     foreach (String keyName in rk.GetSubKeyNames())
-            //     {
-            //         RegistryKey subkey = rk.OpenSubKey(keyName);
-            //         string displayName = subkey.GetValue("DisplayName") as string;
+            var rand = new Random();
 
-            //         if (displayName != null && displayName != "")
-            //         {
-            //             var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
-            //             if (obj == null)
-            //             {
-            //                 softwareList.Add(new Software() { Name = displayName, SrcHku = true });
-
-            //             }
-            //             else obj.SrcHku = true;
-            //         }
-
-            //     }
-
+            if(HKLM == false) return softwareList;
 
             // search in: LocalMachine_32
             rk = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
@@ -130,25 +115,28 @@ namespace Agent
                 string displayVersion = rkSubkey.GetValue("displayVersion") as string;
                 string publisher = rkSubkey.GetValue("Publisher") as string;
                 string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                string InstallDate = rkSubkey.GetValue("InstallDate") as string;
                 string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
                 if (displayName != null && displayName != "")
                 {
-                    var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                    var obj = softwareList.FirstOrDefault(x => x.name == displayName);
                     if (obj == null)
                     {
                         softwareList.Add(new Software()
                         {
-                            Name = displayName,
-                            SrcHku = true,
-                            Version = displayVersion,
-                            Publisher = publisher,
-                            InstallationDirectory = installLocation,
-                            UninstallString = uninstallString,
+                            name = displayName,
+                            // SrcHku = true,
+                            version = displayVersion,
+                            publisher = publisher,
+                            installationDirectory = installLocation,
+                            installed = InstallDate,
+                            comment = "LocalMachine_32"
+                            // UninstallString = uninstallString,
                         });
 
                     }
-                    else obj.SrcHklm = true;
+                    // else obj.SrcHklm = true;
                     // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
                 }
                 rkSubkey.Close();
@@ -166,25 +154,28 @@ namespace Agent
                     string displayVersion = rkSubkey.GetValue("displayVersion") as string;
                     string publisher = rkSubkey.GetValue("Publisher") as string;
                     string installLocation = rkSubkey.GetValue("InstallLocation") as string;
+                    string InstallDate = rkSubkey.GetValue("InstallDate") as string;
                     string uninstallString = rkSubkey.GetValue("UninstallString") as string;
 
                     if (displayName != null && displayName != "")
                     {
-                        var obj = softwareList.FirstOrDefault(x => x.Name == displayName);
+                        var obj = softwareList.FirstOrDefault(x => x.name == displayName);
                         if (obj == null)
                         {
                             softwareList.Add(new Software()
                             {
-                                Name = displayName,
-                                SrcHku = true,
-                                Version = displayVersion,
-                                Publisher = publisher,
-                                InstallationDirectory = installLocation,
-                                UninstallString = uninstallString,
+                                name = displayName,
+                                // SrcHku = true,
+                                version = displayVersion,
+                                publisher = publisher,
+                                installationDirectory = installLocation,
+                                installed = InstallDate,
+                                comment = "LocalMachine_64"
+                                // UninstallString = uninstallString,
                             });
 
                         }
-                        else obj.SrcHklm = true;
+                        // else obj.SrcHklm = true;
                         // softwareList.Add(new Software() { name = displayName, SrcHklm = true });
                     }
                     rkSubkey.Close();
