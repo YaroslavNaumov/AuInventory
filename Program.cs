@@ -13,7 +13,7 @@ namespace Agent
 {
     class Program
     {
-        static async System.Threading.Tasks.Task Main(string[] args)
+        static void Main(string[] args)
         {
             try
             {
@@ -51,15 +51,10 @@ namespace Agent
                 string myJsonString = null;
                 try
                 {
-                    // myJsonString = File.ReadAllText(localStoragePath);
-
                     using (var reader = File.OpenText(localStoragePath))
                     {
-                        myJsonString = await reader.ReadToEndAsync();
-                        // return fileText.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                        myJsonString = reader.ReadToEnd();
                     }
-
-
                 }
                 catch { }
                 Agent agent;

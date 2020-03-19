@@ -11,24 +11,27 @@ namespace Agent
         {
             // List<Software> softwareList = new List<Software>();
             ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
-            if(mos.Get().Count>0) 
+            // if(mos.Get().Count>0) 
 
-            {
+            // {
                 Console.WriteLine("mos.Get().Count "+mos.Get().Count);
+                Console.WriteLine("softwareList.Count "+softwareList.Count);
             
-            }
+            // }
+
+            // softwareList = null;
 
 
             foreach (ManagementObject mo in mos.Get())
             {
                 Software obj = null;
                 string moName=mo["Name"].ToString();
-                Console.WriteLine("FirstOrDefault 1");
+                // Console.WriteLine("FirstOrDefault 1");
                 obj = softwareList.FirstOrDefault(x => x.name == moName );
-                Console.WriteLine("FirstOrDefault 2");
+                // Console.WriteLine("FirstOrDefault 2");
                 if (obj == null)
                 {
-                    Console.WriteLine("FirstOrDefault 3");
+                    // Console.WriteLine("FirstOrDefault 3");
                     softwareList.Add(obj = new Software());
                     obj.name = mo["Name"].ToString();
                     obj.version = mo["Version"].ToString();
@@ -40,11 +43,11 @@ namespace Agent
                 }
                 else
                 {
-                    Console.WriteLine("FirstOrDefault 4");
+                    // Console.WriteLine("FirstOrDefault 4");
                     obj.installed = mo["InstallDate"].ToString();
                     if (obj.installationDirectory == "" && mo["InstallLocation"] != null)
                     {
-                        Console.WriteLine("FirstOrDefault 5");
+                        // Console.WriteLine("FirstOrDefault 5");
                         obj.installationDirectory = mo["InstallLocation"].ToString();
                         obj.comment += " WMI";
                     }
