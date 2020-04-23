@@ -7,52 +7,46 @@ namespace Agent
 {
     public class CapWMI
     {
-        public List<Software> getSoftwareList(List<Software> softwareList)
+        public List<Software> getSoftwareList()
         {
-            // List<Software> softwareList = new List<Software>();
-            ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
-            // if(mos.Get().Count>0) 
-
-            // {
-                Console.WriteLine("mos.Get().Count "+mos.Get().Count);
-                Console.WriteLine("softwareList.Count "+softwareList.Count);
-            
-            // }
-
-            // softwareList = null;
+            Console.WriteLine("Start WMI capture");
+            List<Software> softwareList = new List<Software>();
 
 
-            foreach (ManagementObject mo in mos.Get())
+            ManagementScope scope = new ManagementScope("\\\\.\\root\\cimv2");
+            if (Environment.Is64BitOperatingSystem)
             {
-                Software obj = null;
-                string moName=mo["Name"].ToString();
-                // Console.WriteLine("FirstOrDefault 1");
-                obj = softwareList.FirstOrDefault(x => x.name == moName );
-                // Console.WriteLine("FirstOrDefault 2");
-                if (obj == null)
-                {
-                    // Console.WriteLine("FirstOrDefault 3");
-                    softwareList.Add(obj = new Software());
-                    obj.name = mo["Name"].ToString();
-                    obj.version = mo["Version"].ToString();
-                    obj.publisher = mo["Vendor"].ToString();
-                    if (mo["InstallLocation"] != null) obj.installationDirectory = mo["InstallLocation"].ToString();
-                    obj.installed = mo["InstallDate"].ToString();
-                    obj.comment = "WMI";
+                scope.Options.Context.Add("__ProviderArchitecture", 64);
+                scope.Options.Context.Add("__RequiredArchitecture", true);
+            }
+            scope.Connect();
 
-                }
-                else
+            ManagementObjectSearcher mos = new ManagementObjectSearcher("SELECT * FROM Win32_Product");
+            mos.Scope = scope;
+            // Console.WriteLine("do Get wmi object");
+            if (mos.Get().Count > 0)
+            {
+                foreach (ManagementObject mo in mos.Get())
                 {
-                    // Console.WriteLine("FirstOrDefault 4");
-                    obj.installed = mo["InstallDate"].ToString();
-                    if (obj.installationDirectory == "" && mo["InstallLocation"] != null)
+                    if (mo["Name"] != null && mo != null)
                     {
-                        // Console.WriteLine("FirstOrDefault 5");
-                        obj.installationDirectory = mo["InstallLocation"].ToString();
-                        obj.comment += " WMI";
+                        Software newSoftware = new Software();
+                        // Console.WriteLine(mo["Name"].ToString());
+                        newSoftware.name = mo["Name"].ToString();
+                        if (mo["Version"] != null) newSoftware.version = mo["Version"].ToString();
+                        if (mo["Vendor"] != null) newSoftware.publisher = mo["Vendor"].ToString();
+                        if (mo["InstallLocation"] != null) newSoftware.installationDirectory = mo["InstallLocation"].ToString();
+                        if (mo["InstallDate"] != null) newSoftware.installed = mo["InstallDate"].ToString();
+
+                        newSoftware.comment = "WMI";
+
+                        softwareList.Add(newSoftware);
                     }
                 }
+                softwareList = softwareList.OrderBy(o => o.name).ToList();
             }
+
+            Console.WriteLine("End WMI capture");
             return softwareList;
         }
     }

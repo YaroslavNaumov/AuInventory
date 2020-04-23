@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Net;
+using System.Net.Security;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -21,32 +22,32 @@ namespace Agent
                 Console.WriteLine(appPath);
 
                 // Ini file
-                string configFileName = appPath+"\\config.ini";
+                string configFileName = appPath + "\\config.ini";
                 if (!File.Exists(@configFileName))
                 {
-                    throw new System.ArgumentException("Config file "+configFileName+" not found", appPath);
+                    throw new System.ArgumentException("Config file " + configFileName + " not found", appPath);
                     // configFileName = @"config.ini";
 
                 }
                 IniFile ini = new IniFile(@configFileName);
-                // string localStoragePath = ini.ReadINI("Agent", "localStoragePath");
                 string localStorageFileName = ini.ReadINI("Agent", "localStorageFileName");
-                //localStorageFileName = "SWCstorage.json";
-                string url = ini.ReadINI("Agent", "url");
-                string nowTimestamp = Convert.ToString((Int64)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds);
+                string localStoragePath = appPath + "\\" + localStorageFileName;
+                Console.WriteLine("localStoragePath: " + localStoragePath);
 
+                string url = ini.ReadINI("Agent", "url");
+                Console.WriteLine("server url: " + url);
+
+                bool validateCert = false;
+                validateCert = bool.Parse(ini.ReadINI("Agent", "validateCert"));
+
+                int localStorageSize = int.Parse(ini.ReadINI("Agent", "localStorageSize"));
+                Console.WriteLine("localStorageSize: " + localStorageSize.ToString());
+
+                string nowTimestamp = Convert.ToString((Int64)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds);
+                Console.WriteLine("nowTimestamp: " + nowTimestamp);
 
                 // Command line args
                 string[] arguments = Environment.GetCommandLineArgs();
-
-                string localStoragePath = appPath + "\\" + localStorageFileName;
-                // string localStoragePath = localStorageFileName;
-
-                Console.WriteLine(localStoragePath);
-                Console.WriteLine("server url: "+url);
-                Console.WriteLine("nowTimestamp: "+nowTimestamp);
-
-                // Agent agent = new Agent();
 
                 string myJsonString = null;
                 try
@@ -62,6 +63,16 @@ namespace Agent
                 {
                     agent = (Agent)JsonSerializer.Deserialize(myJsonString, typeof(Agent));
 
+                    if (agent.data.Count() >= localStorageSize)
+                    {
+                        agent.data.RemoveAt(0);
+                    }
+                    Console.WriteLine("Local data (" + agent.data.Count() + ") :");
+                    foreach (var data in agent.data)
+                    {
+                        Console.WriteLine(data.timestamp);
+                    }
+
                 }
                 catch
                 {
@@ -69,11 +80,54 @@ namespace Agent
                 }
 
 
-                List<Software> softwareList = new List<Software>();
                 var reg = new CapRegistry();
-                softwareList = reg.getSoftwareList(softwareList, true);
+                List<Software> registrySoftwareList = reg.getSoftwareList(true);
+                Console.WriteLine("registrySoftwareList " + registrySoftwareList.Count);
+
+
+                Dictionary<String, Software> registryHashMap = new Dictionary<String, Software>();
+                foreach (Software sw in registrySoftwareList)
+                {
+                    if (!registryHashMap.ContainsKey(sw.name + sw.publisher))
+                    {
+                        registryHashMap.Add(sw.name + sw.publisher, sw);
+                    }
+                }
+
+
                 var wmi = new CapWMI();
-                softwareList = wmi.getSoftwareList(softwareList);
+                List<Software> wmiSoftwareList = new List<Software>();
+                wmiSoftwareList = wmi.getSoftwareList();
+                Console.WriteLine("wmiSoftwareList " + wmiSoftwareList.Count);
+
+                Dictionary<String, Software> wmiHashMap = new Dictionary<String, Software>();
+                foreach (Software sw in wmiSoftwareList)
+                {
+                    if (!wmiHashMap.ContainsKey(sw.name + sw.publisher))
+                    {
+                        wmiHashMap.Add(sw.name + sw.publisher, sw);
+                    }
+                }
+
+
+                Dictionary<String, Software> softwareListhHashMap = new Dictionary<String, Software>(registryHashMap);
+                foreach (KeyValuePair<String, Software> kvp in wmiHashMap)
+                {
+                    if (!softwareListhHashMap.ContainsKey(kvp.Key))
+                    {
+                        softwareListhHashMap.Add(kvp.Key, kvp.Value);
+                    }
+                    else
+                    {
+                        softwareListhHashMap.GetValueOrDefault(kvp.Key).comment += " wmi";
+                    }
+                }
+
+                List<Software> softwareList = new List<Software>();
+
+                softwareList.AddRange(softwareListhHashMap.Values);
+
+
 
                 //Convert install date
                 foreach (Software sw in softwareList)
@@ -109,12 +163,24 @@ namespace Agent
                 ManagementObject moGuid = new ManagementObjectSearcher("SELECT UUID FROM Win32_ComputerSystemProduct").Get().OfType<ManagementObject>().FirstOrDefault();
                 // for(var i =1; i<700 ; i++){
 
+                // DateTime instOs = (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()));
+                string osInstalled = Convert.ToString(
+                    (Int64)
+                    (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()))
+                    .Subtract(new DateTime(1970, 1, 1))
+                    .TotalMilliseconds);
+
+                softwareList.Add(new Software() {
+                                        name = moOS["Caption"].ToString().TrimEnd(),
+                                        publisher = moOS["Manufacturer"].ToString(),
+                                        version =  moOS["Version"].ToString().TrimEnd(),
+                                        installationDirectory = moOS["WindowsDirectory"].ToString().TrimEnd(),
+                                        installed = osInstalled,
+                                    });
 
 
                 agent.data.Add(new Datum()
                 {
-                    // timestamp = DateTime.Now.ToFileTime(), //132267579376458433  
-                    // timestamp = (DateTime.Now.ToFileTime()/100000).ToString(), //132267579376458433  
                     timestamp = nowTimestamp,
                     ipAddress = GetLocalIPAddress.GetAddress(),
                     operationSystem = moOS["Caption"].ToString().TrimEnd(),
@@ -154,13 +220,29 @@ namespace Agent
                     cli.Headers[HttpRequestHeader.ContentType] = "application/json";
                     try
                     {
+
+
+                        if (validateCert == false)
+                        {
+                            Console.WriteLine("config.ini pram: validateCert=false");
+                            ServicePointManager.ServerCertificateValidationCallback =
+                            new RemoteCertificateValidationCallback(
+                                delegate
+                                { return true; }
+                                );
+                        }
+                        else
+                        {
+                            Console.WriteLine("config.ini pram: validateCert=true");
+                        }
+
                         //string response = cli.UploadString(url, jsonString);
                         byte[] response = cli.UploadData(url, json);
                         string result = System.Text.Encoding.UTF8.GetString(response);
 
                         Console.WriteLine("================ RESPONSE AREA ================");
                         Console.WriteLine(result);
-                        File.AppendAllText(appPath+"\\response.log", "["+ DateTime.Now.ToString() +"] "+result.ToString()+Environment.NewLine);
+                        File.AppendAllText(appPath + "\\response.log", "[" + DateTime.Now.ToString() + "] " + result.ToString() + Environment.NewLine);
 
                         SrvResp objResp;
                         try
@@ -169,12 +251,12 @@ namespace Agent
 
                             foreach (var item in objResp.arrTimestamps)
                             {
-                                Console.WriteLine(item+ " - preraring to remove");
+                                Console.WriteLine(item + " - preraring to remove");
 
                                 var dataToRemove = agent.data.SingleOrDefault(s => s.timestamp == item);
                                 if (dataToRemove.timestamp != null)
                                 {
-                                    Console.WriteLine(item+" - removed from local storage");
+                                    Console.WriteLine(item + " - removed from local storage");
                                     agent.data.Remove(dataToRemove);
                                 }
                             }
@@ -189,9 +271,9 @@ namespace Agent
                     catch (WebException e)
                     {
 
-                        File.AppendAllText(appPath+"\\error.log", "["+ DateTime.Now.ToString() +"] "+e.GetType().Name+": "+e.Message.ToString()+Environment.NewLine);
+                        File.AppendAllText(appPath + "\\error.log", "[" + DateTime.Now.ToString() + "] " + e.GetType().Name + ": " + e.Message.ToString() + Environment.NewLine);
                         // File.AppendAllText("error.log", "["+ DateTime.Now.ToString() +"] "+e.GetType().Name+"\n");
-                         Console.WriteLine("["+ DateTime.Now.ToString() +"] "+e.GetType().Name+": "+e.Message.ToString());
+                        Console.WriteLine("[" + DateTime.Now.ToString() + "] " + e.GetType().Name + ": " + e.Message.ToString());
                         // Console.WriteLine(e.GetType().Name);
                     }
                 }
@@ -208,7 +290,7 @@ namespace Agent
             {
                 Console.WriteLine(e);
                 string appPath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-                File.AppendAllText(appPath+"\\error.log", "["+ DateTime.Now.ToString() +"] "+e.Message.ToString()+Environment.NewLine);
+                File.AppendAllText(appPath + "\\error.log", "[" + DateTime.Now.ToString() + "] " + e.Message.ToString() + Environment.NewLine);
             }
         }
     }

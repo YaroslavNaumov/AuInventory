@@ -17,8 +17,12 @@ namespace Agent
 
     public class CapRegistry
     {
-public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
+        public List<Software> getSoftwareList(bool HKLM)
         {
+
+            Console.WriteLine("Start registry capture");
+            List<Software> softwareList = new List<Software>();
+
             RegistryKey rk = null;
             List<User> users = new List<User>();
             // search in: Users
@@ -27,8 +31,12 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
             // ManagementObject o = new ManagementObject("Win32_SID.SID='S-1-5-21-3338502417-1842584666-2817140955-41203'");
 
             // S-1-5-21-3338502417-1842584666-2817140955-41203
+            // Console.WriteLine("Do get user");
             foreach (ManagementObject u in user.Get())
             {
+            // Console.WriteLine("Get user");
+
+
                 if (u["sid"].ToString().Length > 8)
                 {
                     string sid = u["sid"].ToString();
@@ -37,13 +45,14 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
                     string n = usr["AccountName"].ToString();
                     string d = usr["ReferencedDomainName"].ToString();
 
+                    //  Console.WriteLine("Add user");
                     users.Add(new User()
                     {
                         LocalPath = u["localpath"].ToString(),
                         Sid = sid,
                         LastUseTime = u["lastusetime"].ToString(),
                     });
-                    // Console.WriteLine(User);
+                    
 
                     rk = Registry.Users.OpenSubKey(sid + @"\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
                     if (rk == null)
@@ -99,6 +108,7 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
                 }
 
             }
+            // Console.WriteLine("end HKU get");
 
             if (HKLM == false) return softwareList;
 
@@ -109,13 +119,16 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
                 softwareList = searchHklm(softwareList, RegistryView.Registry64);
             }
 
+            if (softwareList.Count > 0)
+                softwareList = softwareList.OrderBy(o => o.name).ToList();
 
+            Console.WriteLine("End registry capture");    
             return softwareList;
+
         }
 
-        private List<Software> searchHklm(List<Software> softwareList, RegistryView registry) {
-            
- 
+        private List<Software> searchHklm(List<Software> softwareList, RegistryView registry)
+        {
             RegistryKey rkbase = null;
             rkbase = RegistryKey.OpenBaseKey
                             (Microsoft.Win32.RegistryHive.LocalMachine, registry);
@@ -123,6 +136,7 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
             RegistryKey rk = rkbase.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall");
             foreach (string keyName in rk.GetSubKeyNames())
             {
+                // Console.WriteLine("keyName: "+keyName);
                 RegistryKey rkSubkey = rk.OpenSubKey(keyName);
                 string displayName = rkSubkey.GetValue("DisplayName") as string;
                 string displayVersion = rkSubkey.GetValue("displayVersion") as string;
@@ -130,11 +144,13 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
                 string installLocation = rkSubkey.GetValue("InstallLocation") as string;
                 string InstallDate = rkSubkey.GetValue("InstallDate") as string;
                 string uninstallString = rkSubkey.GetValue("UninstallString") as string;
+                
+                // проверка обновлений
+                var ParentKeyName =  rkSubkey.GetValue("ParentKeyName");
+                if(ParentKeyName != null) continue;
 
 
-
-
-                    if (displayName != null && displayName != "")
+                if (displayName != null && displayName != "")
                 {
                     var obj = softwareList.FirstOrDefault(x => x.name == displayName);
                     if (obj == null)
@@ -143,13 +159,13 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
                         {
                             name = displayName,
                             version = displayVersion,
-                            publisher = publisher!=null?publisher.Replace("\0", string.Empty):publisher,
+                            publisher = publisher != null ? publisher.Replace("\0", string.Empty) : publisher,
                             installationDirectory = installLocation,
                             installed = InstallDate,
                             comment = registry.ToString()
                         });
                     }
-                    else obj.comment += " "+ registry.ToString();
+                    else obj.comment += " " + registry.ToString();
                 }
                 rkSubkey.Close();
             }
@@ -157,5 +173,5 @@ public List<Software> getSoftwareList(List<Software> softwareList, bool HKLM)
             return softwareList;
         }
     }
-        
-    }
+
+}
