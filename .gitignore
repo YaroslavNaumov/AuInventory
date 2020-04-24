@@ -5,6 +5,10 @@
 *.suo
 *.user
 *.sln.docstates
+*.msi
+*.wixobj
+*.wixpdb
+
 
 # Build results
 
