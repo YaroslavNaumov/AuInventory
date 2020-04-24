@@ -19,8 +19,8 @@ namespace Agent
             try
             {
                 string appPath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-                Console.WriteLine(appPath);
-
+                Console.WriteLine("Application path: "+appPath);
+                // Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
                 // Ini file
                 string configFileName = appPath + "\\config.ini";
                 if (!File.Exists(@configFileName))
@@ -43,8 +43,32 @@ namespace Agent
                 int localStorageSize = int.Parse(ini.ReadINI("Agent", "localStorageSize"));
                 Console.WriteLine("localStorageSize: " + localStorageSize.ToString());
 
+                bool createTask = true;
+                createTask = bool.Parse(ini.ReadINI("Task", "createTask"));
+
+                string taskName = ini.ReadINI("Task", "taskName");
+                Console.WriteLine("taskName: " + taskName);
+
+                int startAtHour = int.Parse(ini.ReadINI("Task", "startAtHour"));
+                Console.WriteLine("startAtHour: " + startAtHour.ToString());
+                
+                int rndMinutes = int.Parse(ini.ReadINI("Task", "rndMinutes"));
+                Console.WriteLine("rndMinutes: " + rndMinutes.ToString());
+
                 string nowTimestamp = Convert.ToString((Int64)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds);
                 Console.WriteLine("nowTimestamp: " + nowTimestamp);
+
+
+
+                //-start----Task
+                if(createTask != false){
+                    string exec = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+                    TaskScheduler task = new TaskScheduler();
+                    task.CreateTask(taskName, exec,"send", appPath, startAtHour, rndMinutes);
+                }
+
+                //-end------Task
+
 
                 // Command line args
                 string[] arguments = Environment.GetCommandLineArgs();

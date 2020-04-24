@@ -3,18 +3,18 @@ using System;
 
 namespace Agent
 {
-    public class CreateTask
+    public class TaskScheduler
     {
-        public string ReturnMessage()
+        public bool CreateTask(String taskName, String execCommand, String execCommandArg, String execCommandWorkDir,  int startAtHour, int rndMinutes)
         {
         
-            String taskName = "SWCTRL";
-                String execCommand = "winagent.exe";
-                String execCommandArg = "send";
-                String execCommandWorkDir = "c:\\windows";
-                int startAtHour = 10;
-                int rndMinutes = new Random().Next(0);
-
+            // String taskName = "SWCTRL";
+            //     String execCommand = "winagent.exe";
+            //     String execCommandArg = "send";
+            //     String execCommandWorkDir = "c:\\windows";
+            //     int startAtHour = 10;
+            rndMinutes = new Random().Next(rndMinutes);
+            Console.WriteLine("Start creating Task (" + execCommand + ") start at "+startAtHour+":"+rndMinutes);
             using (TaskService ts = new TaskService())
             {
                 Microsoft.Win32.TaskScheduler.Task task = ts.GetTask(taskName);
@@ -50,8 +50,8 @@ namespace Agent
                                 
             }
         
-        
-            return "Task created";
+        Console.WriteLine("End creating Task");
+            return true;
         }
     }
 }
