@@ -7,10 +7,10 @@
       <Directory Id="ProgramFilesFolder" Name="ProgramFilesFolder">
         <Directory Id="INSTALLDIR" Name="swctrl">
           <Component Id="Component.WinAgent.exe_3028307956" Guid="4c33aece-8ef8-4db2-977b-e5ffca9dc222">
-            <File Id="WinAgent.exe_3028307956" Source="winagent\WinAgent.exe" />
+            <File Id="WinAgent.exe_3028307956" Source="bin\Debug\netcoreapp3.1\win-x86\publish\WinAgent.exe" />
           </Component>
           <Component Id="Component.config.ini_2217011665" Guid="4c33aece-8ef8-4db2-977b-e5ff88852a76">
-            <File Id="config.ini_2217011665" Source="winagent\config.ini" />
+            <File Id="config.ini_2217011665" Source="bin\Debug\netcoreapp3.1\win-x86\publish\config.ini" />
           </Component>
         </Directory>
       </Directory>
@@ -28,7 +28,7 @@
     <!-- <InstallExecuteSequence>
       <Custom Action="LaunchInstalledExe" After="InstallFinalize" />
     </InstallExecuteSequence>
-
     <CustomAction Id="LaunchInstalledExe" FileKey="WinAgent.exe_3028307956" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" /> -->
+
   </Product>
 </Wix>
