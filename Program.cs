@@ -61,10 +61,14 @@ namespace Agent
 
 
                 //-start----Task
+                try{
                 if(createTask != false){
                     string exec = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
                     TaskScheduler task = new TaskScheduler();
                     task.CreateTask(taskName, exec,"send", appPath, startAtHour, rndMinutes);
+                }
+                } catch { 
+                    Console.WriteLine("Please run "+appPath+" as Administrator");
                 }
 
                 //-end------Task

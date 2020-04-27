@@ -66,6 +66,12 @@
             <ComponentRef Id="Component.WinAgent.exe_2302783014" />
             <ComponentRef Id="ProgramFilesFolder.Auriga" />
         </Feature>
+
+
+        <Property Id="MSIUSEREALADMINDETECTION" Value="1" />     
+        <Condition Message="Installation requires Administrator privileges">
+            <![CDATA[Privileged]]>
+        </Condition>
         
         <InstallExecuteSequence>
             <Custom Action="LaunchInstalledExe" After="InstallFinalize" />
