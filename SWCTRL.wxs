@@ -1,34 +1,76 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="4c33aece-8ef8-4db2-977b-e5ff6704dd61" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="1.0.0.0" UpgradeCode="4c33aece-8ef8-4db2-977b-e5ff5704dd60" Manufacturer="auriga.com">
-    <Package InstallerVersion="200" Compressed="yes" SummaryCodepage="Windows-1252" Languages="1033" />
-    <Media Id="1" Cabinet="SWCTRL.cab" EmbedCab="yes" />
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder" Name="ProgramFilesFolder">
-        <Directory Id="INSTALLDIR" Name="swctrl">
-          <Component Id="Component.WinAgent.exe_3028307956" Guid="4c33aece-8ef8-4db2-977b-e5ffca9dc222">
-            <File Id="WinAgent.exe_3028307956" Source="bin\Debug\netcoreapp3.1\win-x86\publish\WinAgent.exe" />
-          </Component>
-          <Component Id="Component.config.ini_2217011665" Guid="4c33aece-8ef8-4db2-977b-e5ff88852a76">
-            <File Id="config.ini_2217011665" Source="bin\Debug\netcoreapp3.1\win-x86\publish\config.ini" />
-          </Component>
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="1adf5503-75f1-4ebc-adc5-8260d1808a5c" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="1.0.0.0" UpgradeCode="1adf5503-75f1-4ebc-adc5-8260c1808a5b" Manufacturer="yaroslav.naumov">
+        <Package InstallerVersion="200" Compressed="yes" SummaryCodepage="Windows-1252" Languages="1033" />
+        <Media Id="1" Cabinet="SWCTRL.cab" EmbedCab="yes" />
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder" Name="ProgramFilesFolder">
+                <Directory Id="ProgramFilesFolder.Auriga" Name="Auriga">
+                    <Directory Id="INSTALLDIR" Name="swctrl">
+                        <Component Id="Component.WinAgent.exe_2302783014" Guid="1adf5503-75f1-4ebc-adc5-8260f75c3ed1">
+                            <File Id="WinAgent.exe_2302783014" Source="bin\Debug\netcoreapp3.1\win-x86\publish\WinAgent.exe" />
+                        </Component>
+                        <Component Id="config.ini" Guid="1adf5503-75f1-4ebc-adc5-8260e8a4621e" KeyPath="yes">
+                            <IniFile Id="config.ini" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="localStorageFileName" Section="Agent" Value="SWCstorage.json" />
+                            <CreateFolder />
+                            <RemoveFolder Id="INSTALLDIR" On="uninstall" />
+                        </Component>
+                        <Component Id="config.ini.1" Guid="1adf5503-75f1-4ebc-adc5-8260b6bc46f9" KeyPath="yes">
+                            <IniFile Id="config.ini.1" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="localStorageSize" Section="Agent" Value="30" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.2" Guid="1adf5503-75f1-4ebc-adc5-82602a5746f9" KeyPath="yes">
+                            <IniFile Id="config.ini.2" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="url" Section="Agent" Value="[URL]" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.3" Guid="1adf5503-75f1-4ebc-adc5-82609ff246f9" KeyPath="yes">
+                            <IniFile Id="config.ini.3" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="validateCert" Section="Agent" Value="[VALIDATECERT]" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.4" Guid="1adf5503-75f1-4ebc-adc5-8260148d46f9" KeyPath="yes">
+                            <IniFile Id="config.ini.4" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="createTask" Section="Task" Value="true" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.5" Guid="1adf5503-75f1-4ebc-adc5-8260882846f9" KeyPath="yes">
+                            <IniFile Id="config.ini.5" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="taskName" Section="Task" Value="SWCTRL" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.6" Guid="1adf5503-75f1-4ebc-adc5-8260fdc346f9" KeyPath="yes">
+                            <IniFile Id="config.ini.6" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="rndMinutes" Section="Task" Value="[RND]" />
+                            <CreateFolder />
+                        </Component>
+                        <Component Id="config.ini.7" Guid="1adf5503-75f1-4ebc-adc5-8260715e46f9" KeyPath="yes">
+                            <IniFile Id="config.ini.7" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="startAtHour" Section="Task" Value="10" />
+                            <CreateFolder />
+                        </Component>
+                    </Directory>
+                    <Component Id="ProgramFilesFolder.Auriga" Guid="1adf5503-75f1-4ebc-adc5-8260533b5da9" KeyPath="yes">
+                        <RemoveFolder Id="ProgramFilesFolder.Auriga" On="uninstall" />
+                    </Component>
+                </Directory>
+            </Directory>
         </Directory>
-      </Directory>
-    </Directory>
-    <UI />
-
-    <!-- <CloseApplication Target="WinAgent.exe" Timeout="5" Sequence="1" CloseMessage="yes" ElevatedCloseMessage="no" ElevatedEndSessionMessage="no" EndSessionMessage="no" PromptToContinue="no" RebootPrompt="no" xmlns="http://schemas.microsoft.com/wix/UtilExtension" />
-    <CloseApplication Target="config.ini" Timeout="5" Sequence="1" CloseMessage="yes" ElevatedCloseMessage="no" ElevatedEndSessionMessage="no" EndSessionMessage="no" PromptToContinue="no" RebootPrompt="no" xmlns="http://schemas.microsoft.com/wix/UtilExtension" /> -->
-
-    <Feature Id="Complete" Title="Complete" Absent="allow" Level="1">
-      <ComponentRef Id="Component.WinAgent.exe_3028307956" />
-      <ComponentRef Id="Component.config.ini_2217011665" />
-    </Feature>
-
-    <!-- <InstallExecuteSequence>
-      <Custom Action="LaunchInstalledExe" After="InstallFinalize" />
-    </InstallExecuteSequence>
-    <CustomAction Id="LaunchInstalledExe" FileKey="WinAgent.exe_3028307956" ExeCommand="" Execute="immediate" Impersonate="yes" Return="asyncNoWait" /> -->
-
-  </Product>
+        <!-- <CloseApplication Target="WinAgent.exe" Timeout="5" Sequence="1" CloseMessage="yes" ElevatedCloseMessage="no" ElevatedEndSessionMessage="no" EndSessionMessage="no" PromptToContinue="no" RebootPrompt="no" xmlns="http://schemas.microsoft.com/wix/UtilExtension" /> -->
+        <Property Id="VALIDATECERT" Value="false" />
+        <Property Id="URL" Value="https://test-invent2.auriga.ru/agent/receiver" />
+        <Property Id="RND" Value="15" />
+        <Feature Id="Complete" Title="Complete" Absent="allow" Level="1">
+            <ComponentRef Id="config.ini" />
+            <ComponentRef Id="config.ini.1" />
+            <ComponentRef Id="config.ini.2" />
+            <ComponentRef Id="config.ini.3" />
+            <ComponentRef Id="config.ini.4" />
+            <ComponentRef Id="config.ini.5" />
+            <ComponentRef Id="config.ini.6" />
+            <ComponentRef Id="config.ini.7" />
+            <ComponentRef Id="Component.WinAgent.exe_2302783014" />
+            <ComponentRef Id="ProgramFilesFolder.Auriga" />
+        </Feature>
+        
+        <InstallExecuteSequence>
+            <Custom Action="LaunchInstalledExe" After="InstallFinalize" />
+        </InstallExecuteSequence>
+        <CustomAction Id="LaunchInstalledExe" FileKey="WinAgent.exe_2302783014" ExeCommand=" send" Execute="immediate" Impersonate="yes" Return="asyncWait" />
+        <UI />
+    </Product>
 </Wix>
