@@ -53,7 +53,7 @@
         <!-- <CloseApplication Target="WinAgent.exe" Timeout="5" Sequence="1" CloseMessage="yes" ElevatedCloseMessage="no" ElevatedEndSessionMessage="no" EndSessionMessage="no" PromptToContinue="no" RebootPrompt="no" xmlns="http://schemas.microsoft.com/wix/UtilExtension" /> -->
         <Property Id="VALIDATECERT" Value="false" />
         <Property Id="URL" Value="https://test-invent2.auriga.ru/agent/receiver" />
-        <Property Id="RND" Value="15" />
+        <Property Id="RND" Value="120" />
         <Feature Id="Complete" Title="Complete" Absent="allow" Level="1">
             <ComponentRef Id="config.ini" />
             <ComponentRef Id="config.ini.1" />

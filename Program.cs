@@ -185,14 +185,22 @@ namespace Agent
 
                 ManagementObject moOS = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem").Get().OfType<ManagementObject>().FirstOrDefault();
                 ManagementObject moGuid = new ManagementObjectSearcher("SELECT UUID FROM Win32_ComputerSystemProduct").Get().OfType<ManagementObject>().FirstOrDefault();
-                // for(var i =1; i<700 ; i++){
+                
 
-                // DateTime instOs = (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()));
-                string osInstalled = Convert.ToString(
-                    (Int64)
-                    (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()))
-                    .Subtract(new DateTime(1970, 1, 1))
-                    .TotalMilliseconds);
+
+                // string osInstalled = Convert.ToString(
+                //     (Int64)
+                //     (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()))
+                //     .Subtract(new DateTime(1970, 1, 1))
+                //     .TotalMilliseconds);
+                string osInstalled = WmiTimeConverter.Cnv( moOS["Installdate"].ToString());
+
+                ManagementObject lastLogon = new ManagementObjectSearcher("SELECT Name, LastLogon FROM Win32_NetworkLoginProfile WHERE LastLogon IS NOT NULL")
+                .Get().OfType<ManagementObject>()
+                .OrderByDescending(l => l["LastLogon"])
+                .FirstOrDefault();
+                // ["Name"].ToString();
+                // Console.WriteLine(lastLogon);
 
                 softwareList.Add(new Software() {
                                         name = moOS["Caption"].ToString().TrimEnd(),
@@ -212,6 +220,7 @@ namespace Agent
                     msOperationSystemKey = KeyDecoder.GetWindowsProductKeyFromRegistry(),
                     computerName = moOS["CSName"].ToString(),
                     software = softwareList,
+                    lastLogon = new LastUser(){userName = lastLogon["Name"].ToString(), time = WmiTimeConverter.Cnv(lastLogon["LastLogon"].ToString())},
                     agentLocation = "",
                     agentVersion = "",
                 });

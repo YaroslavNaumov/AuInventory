@@ -27,7 +27,7 @@ public class Datum
     public string operationSystem { get; set; }
     public string msOperationSystemKey { get; set; }
     public string computerName { get; set; }
-    // public string ActiveUser { get; set; }
+    public LastUser lastLogon { get; set; }
     public List<Software> software { get; set; }
     public string agentLocation { get; set; }
     public string agentVersion { get; set; }
@@ -38,6 +38,10 @@ public class Datum
     }
 }
 
+public class LastUser {
+    public string userName { get; set; }
+    public string time { get; set; }
+}
 public class Software
 {
     public string name { get; set; }
