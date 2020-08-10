@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="1adf5503-75f1-4ebc-adc5-8260d1808a5c" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="1.0.0.0" UpgradeCode="1adf5503-75f1-4ebc-adc5-8260c1808a5b" Manufacturer="yaroslav.naumov">
+    <Product Id="1adf5503-75f1-4ebc-adc5-8260d1808a5c" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="1.0.0.4" UpgradeCode="1adf5503-75f1-4ebc-adc5-8260c1808a5b" Manufacturer="Auriga">
         <Package InstallerVersion="200" Compressed="yes" SummaryCodepage="Windows-1252" Languages="1033" />
         <Media Id="1" Cabinet="SWCTRL.cab" EmbedCab="yes" />
         <Directory Id="TARGETDIR" Name="SourceDir">
