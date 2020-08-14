@@ -1,4 +1,6 @@
-﻿using System;
+﻿using System.Net.Mime;
+using System.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,9 +8,9 @@ using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.Security;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-
 
 namespace Agent
 {
@@ -18,8 +20,10 @@ namespace Agent
         {
             try
             {
+                Console.WriteLine("Agent version " + Assembly.GetExecutingAssembly().GetName().Version.ToString());
                 string appPath = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-                Console.WriteLine("Application path: "+appPath);
+                Console.WriteLine("Application path: " + appPath);
+                Directory.SetCurrentDirectory(appPath);
                 // Console.WriteLine(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
                 // Ini file
                 string configFileName = appPath + "\\config.ini";
@@ -35,6 +39,10 @@ namespace Agent
                 Console.WriteLine("localStoragePath: " + localStoragePath);
 
                 string url = ini.ReadINI("Agent", "url");
+                if (url.Last().Equals('/'))
+                {
+                    url = url.Substring(0, url.Length - 1);
+                }
                 Console.WriteLine("server url: " + url);
 
                 bool validateCert = false;
@@ -51,7 +59,7 @@ namespace Agent
 
                 int startAtHour = int.Parse(ini.ReadINI("Task", "startAtHour"));
                 Console.WriteLine("startAtHour: " + startAtHour.ToString());
-                
+
                 int rndMinutes = int.Parse(ini.ReadINI("Task", "rndMinutes"));
                 Console.WriteLine("rndMinutes: " + rndMinutes.ToString());
 
@@ -61,18 +69,22 @@ namespace Agent
 
 
                 //-start----Task
-                try{
-                if(createTask != false){
-                    string exec = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-                    TaskScheduler task = new TaskScheduler();
-                    task.CreateTask(taskName, exec,"send", appPath, startAtHour, rndMinutes);
+                try
+                {
+                    if (createTask != false)
+                    {
+                        string exec = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+                        TaskScheduler task = new TaskScheduler();
+                        rndMinutes = new Random().Next(rndMinutes);
+                        task.CreateTask(taskName, exec, "send", appPath, startAtHour, rndMinutes);
+                    }
                 }
-                } catch { 
-                    Console.WriteLine("Please run "+appPath+" as Administrator");
+                catch
+                {
+                    Console.WriteLine("Please run " + appPath + " as Administrator");
                 }
 
                 //-end------Task
-
 
                 // Command line args
                 string[] arguments = Environment.GetCommandLineArgs();
@@ -125,7 +137,9 @@ namespace Agent
 
                 var wmi = new CapWMI();
                 List<Software> wmiSoftwareList = new List<Software>();
-                wmiSoftwareList = wmi.getSoftwareList();
+                if (!arguments.Contains("skipwmi")){
+                    wmiSoftwareList = wmi.getSoftwareList();
+                }
                 Console.WriteLine("wmiSoftwareList " + wmiSoftwareList.Count);
 
                 Dictionary<String, Software> wmiHashMap = new Dictionary<String, Software>();
@@ -189,7 +203,7 @@ namespace Agent
 
                 ManagementObject moOS = new ManagementObjectSearcher("SELECT * FROM Win32_OperatingSystem").Get().OfType<ManagementObject>().FirstOrDefault();
                 ManagementObject moGuid = new ManagementObjectSearcher("SELECT UUID FROM Win32_ComputerSystemProduct").Get().OfType<ManagementObject>().FirstOrDefault();
-                
+
 
 
                 // string osInstalled = Convert.ToString(
@@ -197,7 +211,7 @@ namespace Agent
                 //     (ManagementDateTimeConverter.ToDateTime( moOS["Installdate"].ToString()))
                 //     .Subtract(new DateTime(1970, 1, 1))
                 //     .TotalMilliseconds);
-                string osInstalled = WmiTimeConverter.Cnv( moOS["Installdate"].ToString());
+                string osInstalled = WmiTimeConverter.Cnv(moOS["Installdate"].ToString());
 
                 ManagementObject lastLogon = new ManagementObjectSearcher("SELECT Name, LastLogon FROM Win32_NetworkLoginProfile WHERE LastLogon IS NOT NULL")
                 .Get().OfType<ManagementObject>()
@@ -206,13 +220,14 @@ namespace Agent
                 // ["Name"].ToString();
                 // Console.WriteLine(lastLogon);
 
-                softwareList.Add(new Software() {
-                                        name = moOS["Caption"].ToString().TrimEnd(),
-                                        publisher = moOS["Manufacturer"].ToString(),
-                                        version =  moOS["Version"].ToString().TrimEnd(),
-                                        installationDirectory = moOS["WindowsDirectory"].ToString().TrimEnd(),
-                                        installed = osInstalled,
-                                    });
+                softwareList.Add(new Software()
+                {
+                    name = moOS["Caption"].ToString().TrimEnd(),
+                    publisher = moOS["Manufacturer"].ToString(),
+                    version = moOS["Version"].ToString().TrimEnd(),
+                    installationDirectory = moOS["WindowsDirectory"].ToString().TrimEnd(),
+                    installed = osInstalled,
+                });
 
 
                 agent.data.Add(new Datum()
@@ -224,9 +239,9 @@ namespace Agent
                     msOperationSystemKey = KeyDecoder.GetWindowsProductKeyFromRegistry(),
                     computerName = moOS["CSName"].ToString(),
                     software = softwareList,
-                    lastLogon = new LastUser(){userName = lastLogon["Name"].ToString(), time = WmiTimeConverter.Cnv(lastLogon["LastLogon"].ToString())},
+                    lastLogon = new LastUser() { userName = lastLogon["Name"].ToString(), time = WmiTimeConverter.Cnv(lastLogon["LastLogon"].ToString()) },
                     agentLocation = "",
-                    agentVersion = "",
+                    agentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 });
 
 
@@ -249,7 +264,7 @@ namespace Agent
                 byte[] json = JsonSerializer.SerializeToUtf8Bytes(agent, options);
                 //Console.WriteLine(jsonString);
 
-
+                bool updateApp = false;
 
                 if (arguments.Contains("send"))
                 {
@@ -273,8 +288,9 @@ namespace Agent
                             Console.WriteLine("config.ini pram: validateCert=true");
                         }
 
-                        //string response = cli.UploadString(url, jsonString);
-                        byte[] response = cli.UploadData(url, json);
+                        //string response = cli.UploadString(receiverUrl, jsonString);
+                        string receiverUrl = url + "/agent/receiver";
+                        byte[] response = cli.UploadData(receiverUrl, json);
                         string result = System.Text.Encoding.UTF8.GetString(response);
 
                         Console.WriteLine("================ RESPONSE AREA ================");
@@ -296,6 +312,10 @@ namespace Agent
                                     Console.WriteLine(item + " - removed from local storage");
                                     agent.data.Remove(dataToRemove);
                                 }
+                            }
+                            if (objResp.status.Equals("ok"))
+                            {
+                                updateApp = true;
                             }
 
                         }
@@ -319,7 +339,15 @@ namespace Agent
                 // Create a file to write to.
                 string saveData = JsonSerializer.Serialize(agent, options);
                 File.WriteAllText(localStoragePath, saveData);
-                Console.WriteLine("end");
+
+                if (updateApp)
+                {
+                    Updater updater = new Updater();
+                    updater.Update(url);
+                    // Environment.Exit(0);
+                }
+
+                Console.WriteLine("end agent");
                 //Console.ReadLine();
 
             }

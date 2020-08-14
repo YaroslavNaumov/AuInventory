@@ -5,7 +5,7 @@ namespace Agent
 {
     public class TaskScheduler
     {
-        public bool CreateTask(String taskName, String execCommand, String execCommandArg, String execCommandWorkDir,  int startAtHour, int rndMinutes)
+        public bool CreateTask(String taskName, String execCommand, String execCommandArg, String execCommandWorkDir,  int startAtHour, int startAtMinutes)
         {
         
             // String taskName = "SWCTRL";
@@ -13,8 +13,8 @@ namespace Agent
             //     String execCommandArg = "send";
             //     String execCommandWorkDir = "c:\\windows";
             //     int startAtHour = 10;
-            rndMinutes = new Random().Next(rndMinutes);
-            Console.WriteLine("Start creating Task (" + execCommand + ") start at "+startAtHour+":"+rndMinutes);
+            // rndMinutes = new Random().Next(rndMinutes);
+            Console.WriteLine("Start creating Task (" + execCommand + ") start at "+startAtHour+":"+startAtMinutes);
             using (TaskService ts = new TaskService())
             {
                 Microsoft.Win32.TaskScheduler.Task task = ts.GetTask(taskName);
@@ -27,7 +27,7 @@ namespace Agent
 
                 td.Triggers.Add(new DailyTrigger { 
                     DaysInterval = 1,
-                    StartBoundary = DateTime.Today + TimeSpan.FromHours(startAtHour) + TimeSpan.FromMinutes(rndMinutes)
+                    StartBoundary = DateTime.Today + TimeSpan.FromHours(startAtHour) + TimeSpan.FromMinutes(startAtMinutes)
                 });
                 td.Actions.Add(new ExecAction(execCommand, execCommandArg, execCommandWorkDir));
                 td.Principal.Id = "NT AUTHORITY\\SYSTEM";

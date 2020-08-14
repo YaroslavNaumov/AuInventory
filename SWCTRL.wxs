@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-    <Product Id="1adf5503-75f1-4ebc-adc5-8260d1808a5c" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="1.0.0.4" UpgradeCode="1adf5503-75f1-4ebc-adc5-8260c1808a5b" Manufacturer="Auriga">
+    <Product Id="1adf5503-75f1-4ebc-adc5-8260d1808a5c" Name="SWCTRL" Language="1033" Codepage="Windows-1252" Version="2.2.0.0" UpgradeCode="1adf5503-75f1-4ebc-adc5-8260c1808a5b" Manufacturer="Auriga">
         <Package InstallerVersion="200" Compressed="yes" SummaryCodepage="Windows-1252" Languages="1033" />
+        <!-- <MajorUpgrade AllowSameVersionUpgrades="yes" 
+                  DowngradeErrorMessage="A newer version of [ProductName] is already installed. If you are sure you want to downgrade, remove the existing installation via Programs and Features." /> -->
         <Media Id="1" Cabinet="SWCTRL.cab" EmbedCab="yes" />
         <Directory Id="TARGETDIR" Name="SourceDir">
             <Directory Id="ProgramFilesFolder" Name="ProgramFilesFolder">
@@ -9,6 +11,9 @@
                     <Directory Id="INSTALLDIR" Name="swctrl">
                         <Component Id="Component.WinAgent.exe_2302783014" Guid="1adf5503-75f1-4ebc-adc5-8260f75c3ed1">
                             <File Id="WinAgent.exe_2302783014" Source="bin\Debug\netcoreapp3.1\win-x86\publish\WinAgent.exe" />
+                        </Component>
+                        <Component Id="Component.Updater.exe" Guid="b0cbc88d-eba6-4c1d-85b7-ce692542ef4c">
+                            <File Id="Updater.exe" Source="Updater.exe" />
                         </Component>
                         <Component Id="config.ini" Guid="1adf5503-75f1-4ebc-adc5-8260e8a4621e" KeyPath="yes">
                             <IniFile Id="config.ini" Name="config.ini" Action="createLine" Directory="INSTALLDIR" Key="localStorageFileName" Section="Agent" Value="SWCstorage.json" />
@@ -52,7 +57,7 @@
         </Directory>
         <!-- <CloseApplication Target="WinAgent.exe" Timeout="5" Sequence="1" CloseMessage="yes" ElevatedCloseMessage="no" ElevatedEndSessionMessage="no" EndSessionMessage="no" PromptToContinue="no" RebootPrompt="no" xmlns="http://schemas.microsoft.com/wix/UtilExtension" /> -->
         <Property Id="VALIDATECERT" Value="false" />
-        <Property Id="URL" Value="https://test-invent2.auriga.ru/agent/receiver" />
+        <Property Id="URL" Value="https://test-invent2.auriga.ru" />
         <Property Id="RND" Value="120" />
         <Feature Id="Complete" Title="Complete" Absent="allow" Level="1">
             <ComponentRef Id="config.ini" />
@@ -64,6 +69,7 @@
             <ComponentRef Id="config.ini.6" />
             <ComponentRef Id="config.ini.7" />
             <ComponentRef Id="Component.WinAgent.exe_2302783014" />
+            <ComponentRef Id="Component.Updater.exe" />
             <ComponentRef Id="ProgramFilesFolder.Auriga" />
         </Feature>
 
@@ -74,6 +80,9 @@
         </Condition>
         
         <InstallExecuteSequence>
+            <LaunchConditions After='AppSearch' />
+            <RemoveExistingProducts After='InstallValidate' />
+
             <Custom Action="LaunchInstalledExe" After="InstallFinalize" />
         </InstallExecuteSequence>
         <CustomAction Id="LaunchInstalledExe" FileKey="WinAgent.exe_2302783014" ExeCommand=" send" Execute="immediate" Impersonate="yes" Return="asyncWait" />
